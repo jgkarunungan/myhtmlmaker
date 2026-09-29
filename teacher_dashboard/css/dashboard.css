@@ -1,0 +1,186 @@
+/* Universal Teacher Dashboard Stylesheet */
+:root {
+  --primary: #0F766E;
+  --primary-hover: #0D9488;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --radius: 8px;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Header */
+.dashboard-header {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-header h1 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Layout */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Controls */
+label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-muted); }
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) / 2);
+  font-size: 0.95rem;
+  background: #FFFFFF;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+/* Buttons */
+.btn {
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: calc(var(--radius) / 2);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+.btn-primary { background-color: var(--primary); color: #FFFFFF; }
+.btn-primary:hover { background-color: var(--primary-hover); }
+.btn-secondary { background-color: #E2E8F0; color: var(--text); }
+.btn-secondary:hover { background-color: #CBD5E1; }
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+/* Login View */
+.login-overlay {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+}
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+/* Module Selector Bar */
+.module-selector-card { display: flex; align-items: center; gap: 1rem; }
+.module-selector-card select { font-size: 1.05rem; font-weight: 600; }
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+.stat-card .number { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+.stat-card .label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+/* Filters Bar */
+.filter-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.filter-bar input, .filter-bar select { width: auto; min-width: 160px; }
+
+/* Tables */
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { background-color: #F1F5F9; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+
+/* Badges */
+.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+.status-draft { background: #FEF3C7; color: #92400E; }
+.status-submitted { background: #D1FAE5; color: #065F46; }
+.status-graded { background: #E0F2FE; color: #075985; }
+.status-pending-grading { background: #FFEDD5; color: #9A3412; }
+.badge-pts { background: #E2E8F0; color: var(--text); float: right; }
+.badge-ai { background: #F3E8FF; color: #6B21A8; margin-left: 0.5rem; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.modal-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; }
+
+/* Grading Cards */
+.grading-activity-card { background: #F8FAFC; border-left: 4px solid var(--primary); }
+.student-ans-text { background: #FFFFFF; border-left: 3px solid #CBD5E1; padding: 0.75rem 1rem; font-style: italic; margin: 0.5rem 0; }
+.q-review-item { padding: 0.6rem; border-radius: calc(var(--radius)/2); margin: 0.5rem 0; background: #FFFFFF; font-size: 0.85rem; }
+.q-review-item.correct { border-left: 3px solid #10B981; }
+.q-review-item.incorrect { border-left: 3px solid #EF4444; }
+.q-review-item.pending { border-left: 3px solid #F59E0B; }
+
+.discrepancy-banner { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; padding: 0.75rem 1rem; border-radius: calc(var(--radius)/2); margin-bottom: 1rem; font-size: 0.85rem; font-weight: 600; }
+.rubric-input-table { margin-top: 0.75rem; background: #FFFFFF; }
+.rubric-score-input { width: 80px; text-align: center; }

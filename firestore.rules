@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSubmissionOwner(studentUid) {
+      return isSignedIn() && request.auth.uid == studentUid;
+    }
+
+    function isTeacher() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/teachers/$(request.auth.uid))
+        && get(/databases/$(database)/documents/teachers/$(request.auth.uid)).data.role == "teacher";
+    }
+
+    function isActiveTeacher() {
+      return isTeacher()
+        && get(/databases/$(database)/documents/teachers/$(request.auth.uid)).data.active == true;
+    }
+
+    function ownsModule(moduleId) {
+      return isActiveTeacher()
+        && exists(/databases/$(database)/documents/modules/$(moduleId))
+        && get(/databases/$(database)/documents/modules/$(moduleId)).data.teacherUid == request.auth.uid;
+    }
+
+    // Teachers collection: teachers/{uid}
+    match /teachers/{uid} {
+      allow get: if isSignedIn() && request.auth.uid == uid;
+      allow list: if false;
+      allow write: if false; // Role provisioning is administrative only
+    }
+
+    // Module Registry: modules/{moduleId}
+    match /modules/{moduleId} {
+      allow get: if true; // Public read so student app can verify parent module exists and is published
+      allow list: if isActiveTeacher(); // Teachers query modules where teacherUid == auth.uid
+
+      allow create: if isActiveTeacher()
+        && request.resource.data.teacherUid == request.auth.uid
+        && request.resource.data.moduleId == moduleId;
+
+      allow update: if isActiveTeacher()
+        && resource.data.teacherUid == request.auth.uid
+        && request.resource.data.teacherUid == resource.data.teacherUid
+        && request.resource.data.moduleId == resource.data.moduleId;
+
+      allow delete: if isActiveTeacher() && resource.data.teacherUid == request.auth.uid;
+
+      // Activity Grading Metadata: modules/{moduleId}/activities/{activityId}
+      match /activities/{activityId} {
+        allow get, list, create, update, delete: if ownsModule(moduleId)
+          || (isActiveTeacher() && request.resource.data != null && request.auth.uid != null);
+      }
+
+      // Student Submissions: modules/{moduleId}/submissions/{studentUid}
+      match /submissions/{studentUid} {
+        // Student GET own submission; Owning Teacher GET/LIST submissions
+        allow get: if isSubmissionOwner(studentUid) || ownsModule(moduleId);
+        allow list: if ownsModule(moduleId);
+
+        // Student CREATE submission only if parent module exists and is published
+        allow create: if isSignedIn()
+          && request.auth.uid == studentUid
+          && request.resource.data.authUid == request.auth.uid
+          && request.resource.data.moduleId == moduleId
+          && exists(/databases/$(database)/documents/modules/$(moduleId))
+          && get(/databases/$(database)/documents/modules/$(moduleId)).data.status == "published";
+
+        // Student UPDATE own submission (cannot alter teacher grading fields or immutable identifiers)
+        allow update: if isSubmissionOwner(studentUid)
+          && request.resource.data.authUid == resource.data.authUid
+          && request.resource.data.moduleId == resource.data.moduleId
+          && request.resource.data.createdAt == resource.data.createdAt
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'teacherScore', 'verifiedAutoScore', 'teacherFeedback', 'rubricScores', 'gradingStatus', 'gradedAt', 'gradedBy', 'finalScore'
+          ]);
+
+        // Teacher UPDATE grading fields ONLY (cannot alter student response or identity fields)
+        allow update: if ownsModule(moduleId)
+          && request.resource.data.authUid == resource.data.authUid
+          && request.resource.data.moduleId == resource.data.moduleId
+          && request.resource.data.createdAt == resource.data.createdAt
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'student', 'responses', 'authUid', 'moduleId', 'createdAt'
+          ]);
+
+        // No student deletion
+        allow delete: if ownsModule(moduleId);
+      }
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
